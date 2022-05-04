@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from "react-router-dom";
+// import { useHistory } from "react-router-dom";
 import * as C from './styled';
 import { Header } from '../../components/Header';
 import { useState } from 'react';
@@ -8,26 +8,33 @@ import { useEffect } from 'react';
 import { CategoryItem } from '../../components/CategoryItem';
 import ReactTooltip from 'react-tooltip';
 import { ProductItem } from '../../components/ProductItem';
+import { Modal } from '../../components/Modal';
+import { ModalProduct } from '../../components/ModalProduct';
+
+let searchTimer = null
 
 export default () => {
-    const history = useHistory();
+    // const history = useHistory();
 
     const [headerSearch ,setHeaderSearch] = useState('')
     const [categoriesList, setCategoriesList] = useState([])
     const [productsList, setProductsList] = useState([])
     const [totalPages, setTotalPages] = useState(0)
 
-    const [activeCategory, setAcitveCategory] = useState(0);
-    const [activePage, setActivePage] = useState(0)
+    const [modalStatus, setModalStatus] = useState(false)
+    const [modalData, setModalData] = useState({});
 
-    const CallProducts = async () => {
-        const prods = await api.getProducts()
-        if(prods.error === '') {
-            setProductsList(prods.result.data)
-            setTotalPages(prods.result.pages)
-            setActivePage(prods.result.page)
-        }
-    }
+    const [activeCategory, setAcitveCategory] = useState(0);
+    const [activePage, setActivePage] = useState(1)
+    const [activeSearch, setActiveSearch] = useState('')
+
+    useEffect(()=> {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(()=>{ 
+            setActiveSearch(headerSearch)  
+        }, 2000);
+
+    }, [headerSearch])
 
     useEffect(()=>{
         const CallCategories = async () => {
@@ -41,11 +48,26 @@ export default () => {
     }, []);
 
     useEffect(()=>{
-        CallProducts()
-    }, [activeCategory, activePage])
+        const CallProducts = async () => {
+            const prods = await api.getProducts(activeCategory, activePage, activeSearch)
+            if(prods.error === '') {
+                setProductsList(prods.result.data)
+                setTotalPages(prods.result.pages)
+                setActivePage(prods.result.page)
+            }
+        }
+
+        CallProducts();
+
+    }, [activeCategory, activePage, activeSearch])
 
     const handleSearch = (searchItem) => {
         setHeaderSearch(searchItem)
+    }
+
+    const handleProductClick = (data) => {
+        setModalData(data)
+        setModalStatus(true)
     }
 
     return (
@@ -82,26 +104,33 @@ export default () => {
                         <ProductItem 
                         key={index}
                         data={item}
+                        onClick={handleProductClick}
                         />
                     ))}
                 </C.ProductList>
             </C.ProductArea>
             }
+            {totalPages > 0 &&
+                <C.ProductPagination>
+                    {Array(totalPages).fill(0).map((item, index)=>(
+                        <C.ProductItem 
+                            key={index} 
+                            active={activePage}
+                            current={index + 1}
+                            onClick={() => setActivePage(index + 1)}
+                            >
+                                {index + 1}
+                        </C.ProductItem>
+                    ))}
+                </C.ProductPagination>
+            }
 
-            <C.ProductPagination>
-                {totalPages > 0 &&
-                Array(totalPages).fill(0).map((item, index)=>(
-                    <C.ProductItem 
-                        key={index} 
-                        active={activePage}
-                        current={index + 1}
-                        onClick={() => setActivePage(index + 1)}
-                        >
-                            {index + 1}
-                    </C.ProductItem>
-                ))
-                }
-            </C.ProductPagination>
+            <Modal status={modalStatus} setStatus={setModalStatus}>
+                <ModalProduct
+                    data={modalData}
+                    setStatus={setModalStatus}
+                />
+            </Modal>
         </C.Container>
     );
 }

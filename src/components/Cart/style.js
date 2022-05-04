@@ -24,10 +24,65 @@ export const CartHeader =styled.div`
     }
 
     span {
+        flex: 1;
         color: #FFF;
         font-size: 17px;
     }
 `
 
 export const CartBody = styled.div`
+    display: ${props => props.show ? 'block' : 'none'};
+    color: #FFF;
+
+
+    .productArea{
+
+        .productItem{ 
+            display: flex;
+            margin: 10px;
+        }
+
+        img {
+            width: 64px;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .productInfoArea {
+            
+            flex: 1;
+            margin-left: 10px;
+
+            .productName {
+                font-size: 15px;
+                font-weight: bold;
+            }
+
+            .productPrice {
+                font-size: 13px;
+            }
+
+        }
+
+        .productQtArea {
+
+            display: flex;
+            align-items: center;
+
+            img {
+                width: 13px;
+                height: auto;
+                cursor: pointer;
+            }
+
+            span {
+                font-size: 13px;
+                font-weight: bold;
+                margin: 0px 5px;
+            }
+        }
+
+    }
 `
+
+

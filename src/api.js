@@ -10,8 +10,25 @@ export const api = {
         return response.data
     },
 
-    getProducts: async () => {
-        let response = await http.get('/products')
+    getProducts: async (category, page, search) => {
+        let fields = {}
+
+        if(category !== 0){
+            fields.category = category
+        }
+
+        if(page > 0){
+            fields.page = page
+        }
+
+        if(search !== ''){
+            fields.search = search
+        }
+
+        let queryString = new URLSearchParams(fields).toString()
+
+
+        let response = await http.get('/products?'+ queryString)
         return response.data
     }
 }

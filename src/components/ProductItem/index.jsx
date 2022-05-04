@@ -1,9 +1,14 @@
 import React from 'react'
 import * as C from './style'
 
-export const ProductItem = ({data}) => {
+export const ProductItem = ({data, onClick}) => {
+
+    const handleClick = () => {
+        onClick(data)
+    }
+
     return(
-        <C.Container>
+        <C.Container onClick={handleClick}>
             <C.ProductPhotoArea>
                 <img src={data.image} alt="" />
             </C.ProductPhotoArea>
